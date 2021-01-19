@@ -8,6 +8,7 @@ def deleteTables():
     Genero.objects.all().delete()
     Ocupacion.objects.all().delete()
     Usuario.objects.all().delete()
+    Pelicula.objects.all().delete()
 
 def cargar_occupation():
 

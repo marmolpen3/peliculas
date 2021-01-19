@@ -3,8 +3,8 @@ import shelve
 from django.shortcuts import render
 from recomendador.populate import populateDatabase
 from .models import Puntuacion, Pelicula
-from .forms import UserForm
-from .recommendations import getRecommendations
+from .forms import UserForm, MostSimilarFilmsForm
+from .recommendations import getRecommendations, topMatches
 
 # Create your views here.
 # Prefs = {'usuarioId0': {'peliculaId0':puntuacion, 'peliculaId1':puntuacion},
@@ -26,8 +26,6 @@ def loadDict():
         PeliPrefs.setdefault(pelicula_id, {})
         PeliPrefs[pelicula_id][usuario_id] = rating
 
-    print(UserPrefs)
-    print(PeliPrefs)
     shelf['UsuariosPreferencias'] = UserPrefs
     shelf['PeliculaPreferencias'] = PeliPrefs
     shelf.close()
@@ -64,3 +62,23 @@ def recomendador_by_user(request):
 
     form = UserForm()
     return render(request, 'user_form.html', {'form':form})
+
+def top_3_peliculas_similares(request):
+    if request.method == 'GET':
+        form = MostSimilarFilmsForm(request.GET)
+        if form.is_valid():
+            pelicula_id = form.cleaned_data['id']
+            shelf = shelve.open("dataRS.dat")
+            pelicula_prefs = shelf['PeliculaPreferencias']
+            shelf.close()
+            scores = topMatches(pelicula_prefs, pelicula_id, n=3)
+            recomendaciones = []
+            for s in scores:
+                puntuacion = int(s[0])
+                pelicula = Pelicula.objects.get(id=int(s[1]))
+                recomendaciones.append((pelicula, puntuacion))
+
+            return render(request, 'user_recomendaciones.html', {'recomendaciones':recomendaciones})
+
+    form = MostSimilarFilmsForm()
+    return render(request, 'formulario_pelicula.html', {'form':form})

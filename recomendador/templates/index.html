@@ -6,8 +6,11 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{% url 'carga' %}">Cargar base de datos</a>
-    <a href="{% url 'dict' %}">Cargar diccionario</a>
-    <a href="{% url 'recomendador_usuario' %}">Recomendador usuario</a>
+    <ul>
+        <li><a href="{% url 'carga' %}">Cargar base de datos</a></li>
+        <li><a href="{% url 'dict' %}">Cargar diccionario</a></li>
+        <li><a href="{% url 'recomendador_usuario' %}">Recomendador usuario</a></li>
+        <li><a href="{% url 'coincidencias_pelicula' %}">Recomedador de películas más similares a una dada</a></li>
+    </ul>
 </body>
 </html>
