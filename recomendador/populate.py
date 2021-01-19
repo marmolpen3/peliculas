@@ -1,3 +1,5 @@
+#encoding:utf-8
+
 import datetime
 
 from recomendador.models import Ocupacion, Genero, Usuario, Pelicula
@@ -10,7 +12,7 @@ def deleteTables():
 def cargar_occupation():
 
     lista=[]
-    fileobj = open('./datos/u.occupation', "r")
+    fileobj = open('./datos/u.occupation', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
         lista.append(Ocupacion(nombre=str(line.strip())))
@@ -24,7 +26,7 @@ def cargar_occupation():
 def cargar_genre():
 
     lista=[]
-    fileobj = open('./datos/u.genre', "r")
+    fileobj = open('./datos/u.genre', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
         linea = line.split('|')
@@ -39,7 +41,7 @@ def cargar_genre():
 
 def cargar_user():
     lista=[]
-    fileobj = open('./datos/u.user', "r")
+    fileobj = open('./datos/u.user', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
         linea = line.split('|')
@@ -55,7 +57,7 @@ def cargar_user():
 def cargar_peliculas():
     lista=[]
     categorias = {}
-    fileobj = open('./datos/u.item', "r")
+    fileobj = open('./datos/u.item', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
         linea = line.split('|')
@@ -87,7 +89,6 @@ def date_format(str_date):
         fecha = str_date.split("-")
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         day = int(fecha[0])
-        print(type(months.index(fecha[1])))
         month = months.index(fecha[1]) + 1
         year = int(fecha[2])
 
@@ -103,8 +104,8 @@ def get_generos(lista_generos):
         i+=1
     return generos
 
-def cargar_puntuaciones():
-    #TODO
+# def cargar_puntuaciones():
+#     #TODO
 
 def populateDatabase():
     deleteTables()
@@ -112,5 +113,5 @@ def populateDatabase():
     cargar_genre()
     cargar_user()
     cargar_peliculas()
-    cargar_puntuaciones()
+    # cargar_puntuaciones()
     print("Finished database population")
