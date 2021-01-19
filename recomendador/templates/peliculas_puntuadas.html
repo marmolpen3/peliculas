@@ -6,9 +6,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-    <form action="{% url 'coincidencias_pelicula' %}" method="GET">
-        {{ form.as_p }}
-        <input type="submit" value="Submit">
-    </form>
+        {% for recomedacion in recomendaciones %}
+            <ul>
+                <li>Titulo: {{recomedacion.0.nombre}} - puntuación: {{recomedacion.1}}</li>
+            </ul>
+        {% endfor %}
     </body>
 </html>

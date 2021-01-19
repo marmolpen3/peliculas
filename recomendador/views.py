@@ -127,3 +127,24 @@ def top_3_usuarios_similares_pelicula(request):
 
     form = MostSimilarFilmsForm()
     return render(request, 'formulario_similaridad_pelicula.html', {'form':form})
+
+def peliculas_puntuadas_por_usuario(request):
+    if request.method == 'GET':
+        form=FormularioUsuario(request.GET)
+        if form.is_valid():
+            usuario_id=form.cleaned_data['usuario_id']
+            shelf = shelve.open("dataRS.dat")
+            usuarios_prefs = shelf['UsuariosPreferencias']
+            shelf.close()
+            peliculas=usuarios_prefs[usuario_id]
+            recomendaciones = []
+            for p_id, punt in peliculas.items():
+                puntuacion = punt
+                pelicula = Pelicula.objects.get(id= p_id)
+                recomendaciones.append((pelicula, puntuacion))
+
+            return render(request, 'peliculas_puntuadas.html', {'recomendaciones':recomendaciones})
+
+
+    form=FormularioUsuario()
+    return render(request, 'formulario_peliculas_usuario.html', {'form':form})
