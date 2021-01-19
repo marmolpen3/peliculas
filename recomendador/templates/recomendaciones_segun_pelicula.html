@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        {% for recomendacion in recomendaciones %}
+            <ul>
+                <li>ID: {{recomendacion.0.pk}} - EDAD: {{recomendacion.0.edad}} - CÓDIGO POSTAL: {{recomendacion.0.codigo_postal}}</li>
+            </ul>
+        {% endfor %}
+    </body>
+</html>

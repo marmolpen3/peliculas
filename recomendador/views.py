@@ -2,7 +2,7 @@ import shelve
 
 from django.shortcuts import render
 from recomendador.populate import populateDatabase
-from .models import Puntuacion, Pelicula
+from .models import Puntuacion, Pelicula, Usuario
 from .forms import FormularioUsuario, MostSimilarFilmsForm
 from .recommendations import getRecommendations, getRecommendedItems, calculateSimilarItems, topMatches
 
@@ -101,7 +101,29 @@ def top_3_peliculas_similares(request):
                 pelicula = Pelicula.objects.get(id=int(s[1]))
                 recomendaciones.append((pelicula, puntuacion))
 
-            return render(request, 'user_recomendaciones.html', {'recomendaciones':recomendaciones})
+            return render(request, 'recomendaciones_usuario.html', {'recomendaciones':recomendaciones})
 
     form = MostSimilarFilmsForm()
     return render(request, 'formulario_pelicula.html', {'form':form})
+
+
+def top_3_usuarios_similares_pelicula(request):
+    if request.method == 'GET':
+        form = MostSimilarFilmsForm(request.GET)
+        if form.is_valid():
+            pelicula_id = form.cleaned_data['id']
+            shelf = shelve.open("dataRS.dat")
+            pelicula_prefs = shelf['PeliculaPreferencias']
+            shelf.close()
+            rankings = getRecommendations(pelicula_prefs, pelicula_id)
+            usuarios_mas_recomendados = rankings[:3]
+            recomendaciones = []
+            for u in usuarios_mas_recomendados:
+                puntuacion = int(u[0])
+                usuario = Usuario.objects.get(id=int(u[1]))
+                recomendaciones.append((usuario, puntuacion))
+
+            return render(request, 'recomendaciones_segun_pelicula.html', {'recomendaciones':recomendaciones})
+
+    form = MostSimilarFilmsForm()
+    return render(request, 'formulario_similaridad_pelicula.html', {'form':form})
