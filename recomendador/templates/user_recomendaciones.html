@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        {% for recomedacion in recomendaciones %}
+            <ul>
+                <li>Titulo: {{recomedacion.0.nombre}} - puntuación: {{recomedacion.1}}</li>
+            </ul>
+        {% endfor %}
+    </body>
+</html>

@@ -2,7 +2,7 @@
 
 import datetime
 
-from recomendador.models import Ocupacion, Genero, Usuario, Pelicula
+from recomendador.models import Ocupacion, Genero, Usuario, Pelicula, Puntuacion
 
 def deleteTables():
     Genero.objects.all().delete()
@@ -41,22 +41,28 @@ def cargar_genre():
 
 def cargar_user():
     lista=[]
+    usuarios = {}
     fileobj = open('./datos/u.user', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
         linea = line.split('|')
         if len(linea) != 5:
             continue
-        lista.append(Usuario(pk=int(linea[0]), edad=int(linea[1]), sexo=linea[2], ocupacion=Ocupacion.objects.get(nombre=linea[3]), codigo_postal=linea[4]))
+        u = Usuario(pk=int(linea[0].strip()), edad=int(linea[1].strip()), sexo=linea[2].strip(), ocupacion=Ocupacion.objects.get(nombre=linea[3].strip()), codigo_postal=linea[4].strip())
+        lista.append(u)
+        usuarios[int(linea[0].strip())] = u
     fileobj.close()
     Usuario.objects.bulk_create(lista)
 
     print("Users inserted: " + str(Usuario.objects.count()))
     print("---------------------------------------------------------")
 
+    return usuarios
+
 def cargar_peliculas():
     lista=[]
     categorias = {}
+    peliculas = {}
     fileobj = open('./datos/u.item', "r", encoding="ISO-8859-1")
 
     for line in fileobj.readlines():
@@ -65,13 +71,13 @@ def cargar_peliculas():
         if len(linea) != 24:
             continue
         lista.append(Pelicula(
-            pk=int(linea[0]),
-            nombre=linea[1],
-            fecha_estreno=date_format(linea[2]),
-            fecha_estreno_video=date_format(linea[3]),
-            imdb_url=linea[4]))
+            pk=int(linea[0].strip()),
+            nombre=linea[1].strip(),
+            fecha_estreno=date_format(linea[2].strip()),
+            fecha_estreno_video=date_format(linea[3].strip()),
+            imdb_url=linea[4].strip()))
 
-        categorias[int(linea[0])]=get_generos(generos)
+        categorias[int(linea[0].strip())]=get_generos(generos)
 
     fileobj.close()
     Pelicula.objects.bulk_create(lista)
@@ -81,6 +87,9 @@ def cargar_peliculas():
 
     for pelicula in Pelicula.objects.all():
         pelicula.categorias.set(categorias[pelicula.id])
+        peliculas[pelicula.id]=pelicula
+
+    return peliculas
 
 def date_format(str_date):
     if not str_date:
@@ -104,14 +113,31 @@ def get_generos(lista_generos):
         i+=1
     return generos
 
-# def cargar_puntuaciones():
-#     #TODO
+def cargar_puntuaciones(u, p):
+    lista=[]
+    fileobj = open('./datos/u.data', "r", encoding="ISO-8859-1")
+
+    for line in fileobj.readlines():
+        linea = line.split()
+        if len(linea) != 4:
+            continue
+        lista.append(Puntuacion(
+            usuario=u[int(linea[0].strip())],
+            pelicula=p[int(linea[1].strip())],
+            rating=int(linea[2].strip()),
+            fecha_puntuacion=datetime.datetime.fromtimestamp(int(linea[3].strip()))))
+
+    fileobj.close()
+    Puntuacion.objects.bulk_create(lista)
+
+    print("Ratings inserted: " + str(Puntuacion.objects.count()))
+    print("---------------------------------------------------------")
 
 def populateDatabase():
     deleteTables()
     cargar_occupation()
     cargar_genre()
-    cargar_user()
-    cargar_peliculas()
-    # cargar_puntuaciones()
+    u=cargar_user()
+    p=cargar_peliculas()
+    cargar_puntuaciones(u, p)
     print("Finished database population")

@@ -28,5 +28,5 @@ class Pelicula(models.Model):
 class Puntuacion(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     pelicula = models.ForeignKey(Pelicula, on_delete=models.CASCADE)
-    fecha_puntuacion = models.DateField(null=True, blank=True)
+    fecha_puntuacion = models.DateTimeField(null=True, blank=True)
     rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
