@@ -15,12 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from recomendador.views import index, populateDB, populateDict, recomendador_by_user
+from recomendador.views import index, populateDB, populateDict, recomendador_por_usuario,recomendador_por_pelicula
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
     path('populateDB/', populateDB, name="carga"),
     path('populateDict/', populateDict, name="dict"),
-    path('recomendadorUser/', recomendador_by_user, name="recomendador_usuario")
+    path('recomendadorUsuario/', recomendador_por_usuario, name="recomendador_usuario"),
+    path('recomendadorPelicula/', recomendador_por_pelicula, name="recomendador_pelicula")
 ]

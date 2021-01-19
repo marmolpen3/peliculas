@@ -51,7 +51,7 @@ def sim_pearson(prefs, p1, p2):
 
     return r
 
-# Returns the best matches for person from the prefs dictionary.
+# Returns the best matches for person/item from the prefs dictionary.
 # Number of results and similarity function are optional params.
 def topMatches(prefs, person, n=5, similarity=sim_pearson):
     scores = [(similarity(prefs, person, other), other)
@@ -87,23 +87,10 @@ def getRecommendations(prefs, person, similarity=sim_pearson):
     rankings.reverse()
     return rankings
 
-def transformPrefs(prefs):
-    result = {}
-    for person in prefs:
-        for item in prefs[person]:
-            result.setdefault(item, {})
-
-            # Flip item and person
-            result[item][person] = prefs[person][item]
-    return result
-
-
-def calculateSimilarItems(prefs, n=10):
+def calculateSimilarItems(itemPrefs, n=10):
     # Create a dictionary of items showing which other items they
     # are most similar to.
     result = {}
-    # Invert the preference matrix to be item-centric
-    itemPrefs = transformPrefs(prefs)
     c = 0
     for item in itemPrefs:
         # Status updates for large datasets
@@ -122,7 +109,6 @@ def getRecommendedItems(prefs, itemMatch, user):
     for (item, rating) in userRatings.items():
         # Loop over items similar to this one
         for (similarity, item2) in itemMatch[item]:
-            print (item2)
             # Ignore if this user has already rated this item
             if item2 in userRatings: continue
             # Weighted sum of rating times similarity

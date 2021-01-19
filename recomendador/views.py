@@ -3,8 +3,8 @@ import shelve
 from django.shortcuts import render
 from recomendador.populate import populateDatabase
 from .models import Puntuacion, Pelicula
-from .forms import UserForm
-from .recommendations import getRecommendations
+from .forms import FormularioUsuario
+from .recommendations import getRecommendations, getRecommendedItems, calculateSimilarItems
 
 # Create your views here.
 # Prefs = {'usuarioId0': {'peliculaId0':puntuacion, 'peliculaId1':puntuacion},
@@ -26,8 +26,6 @@ def loadDict():
         PeliPrefs.setdefault(pelicula_id, {})
         PeliPrefs[pelicula_id][usuario_id] = rating
 
-    print(UserPrefs)
-    print(PeliPrefs)
     shelf['UsuariosPreferencias'] = UserPrefs
     shelf['PeliculaPreferencias'] = PeliPrefs
     shelf.close()
@@ -44,23 +42,46 @@ def populateDict(request):
     loadDict()
     return render(request, 'populate.html')
 
-def recomendador_by_user(request):
+def recomendador_por_usuario(request):
     if request.method == 'GET':
-        form = UserForm(request.GET)
+        form = FormularioUsuario(request.GET)
         if form.is_valid():
-            user_id = form.cleaned_data['id']
+            usuario_id = form.cleaned_data['usuario_id']
             shelf = shelve.open("dataRS.dat")
-            user_prefs = shelf['UsuariosPreferencias']
+            usuarios_prefs = shelf['UsuariosPreferencias']
             shelf.close()
-            rankings = getRecommendations(user_prefs, user_id)
+            rankings = getRecommendations(usuarios_prefs, usuario_id)
             recommended = rankings[:2]
             recomendaciones = []
             for re in recommended:
-                pelicula = Pelicula.objects.get(id=int(re[1]))
                 puntuacion = int(re[0])
+                pelicula = Pelicula.objects.get(id=int(re[1]))
                 recomendaciones.append((pelicula, puntuacion))
 
-            return render(request, 'user_recomendaciones.html', {'recomendaciones':recomendaciones})
+            return render(request, 'recomendaciones_usuario.html', {'recomendaciones':recomendaciones})
 
-    form = UserForm()
-    return render(request, 'user_form.html', {'form':form})
+    form = FormularioUsuario()
+    return render(request, 'formulario_usuario.html', {'form':form})
+
+def recomendador_por_pelicula(request):
+    if request.method == 'GET':
+        form=FormularioUsuario(request.GET)
+        if form.is_valid():
+            usuario_id = form.cleaned_data['usuario_id']
+            shelf = shelve.open("dataRS.dat")
+            usuarios_prefs = shelf['UsuariosPreferencias']
+            pelicula_prefs = shelf['PeliculaPreferencias']
+            shelf.close()
+            coincidencias_entre_peliculas=calculateSimilarItems(pelicula_prefs)
+            rankings=getRecommendedItems(usuarios_prefs, coincidencias_entre_peliculas, usuario_id)
+            recomendadas = rankings[:2]
+            recomendaciones = []
+            for re in recomendadas:
+                puntuacion = int(re[0])
+                pelicula = Pelicula.objects.get(id=int(re[1]))
+                recomendaciones.append((pelicula, puntuacion))
+
+            return render(request, 'recomendaciones_usuario.html', {'recomendaciones':recomendaciones})
+
+    form=FormularioUsuario()
+    return render(request, 'formulario_usuario_pelicula.html', {'form':form})

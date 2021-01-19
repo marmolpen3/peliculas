@@ -6,9 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
     </head>
     <body>
-    <form action="{% url 'recomendador_usuario' %}" method="GET">
-        {% csrf_token %}
-        {{ form }}
+    <form action="{% url 'recomendador_pelicula' %}" method="GET">
+        {{form.as_p}}
         <input type="submit" value="Submit">
     </form>
     </body>
